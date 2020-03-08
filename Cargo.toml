@@ -1,0 +1,51 @@
+[package]
+name = "samd-timer"
+version = "0.1.0"
+description = "High-level API for the TC/TCC peripherals found on the Microchip SAM MCUs."
+authors = ["Adam Jacobus"]
+repository = "https://github.com/proman21/samd-timer"
+readme = "README.md"
+edition = "2018"
+categories = ["embedded", "no-std", "hardware-support"]
+license = "MIT"
+
+[dependencies]
+bitflags = "1.2.1"
+smart-default = "0.6.0"
+atsamd-hal = "0.8.2"
+paste = "0.1.7"
+
+[dependencies.atsamd51j19a]
+version = "0.6.0"
+optional = true
+
+[dependencies.atsamd51j20a]
+version = "0.6.0"
+optional = true
+
+[dependencies.atsamd51g19a]
+version = "0.6.0"
+optional = true
+
+[dependencies.atsamd21g18a]
+version = "0.6.0"
+optional = true
+
+[dependencies.atsamd21e18a]
+version = "0.6.0"
+optional = true
+
+[dependencies.atsamd21j18a]
+version = "0.6.0"
+optional = true
+
+[features]
+samd21 = []
+samd21g18a = ["atsamd21g18a", "atsamd-hal/samd21g18a", "samd21"]
+samd21e18a = ["atsamd21e18a", "atsamd-hal/samd21e18a", "samd21"]
+samd21j18a = ["atsamd21j18a", "atsamd-hal/samd21j18a", "samd21"]
+samd51 = []
+samd51j19a = ["atsamd51j19a", "atsamd-hal/samd51j19a", "samd51"]
+samd51j20a = ["atsamd51j20a", "atsamd-hal/samd51j20a", "samd51"]
+samd51g19a = ["atsamd51g19a", "atsamd-hal/samd51g19a", "samd51"]
+same54 = []
