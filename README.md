@@ -2,6 +2,10 @@
 
 > High-level API for the TCC/TC peripherals found on the Microchip SAMD and SAME MCUs.
 
+[![Crates.io](https://img.shields.io/crates/v/samd-timer)](https://crates.io/crates/samd-timer)
+![Crates.io](https://img.shields.io/crates/l/samd-timer)
+![Crates.io](https://img.shields.io/crates/d/samd-timer)
+
 **This library is usable (as in I use it), but could contain bugs. USE AT YOUR OWN RISK.**
 
 This library provides the `Timer` and `ControlTimer` types for working safely with `TC` and `TCC` peripherals respectively. Full support for waveform generation capabilities, double buffering, and capture modes.
