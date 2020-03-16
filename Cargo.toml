@@ -1,6 +1,6 @@
 [package]
 name = "samd-timer"
-version = "0.1.0"
+version = "0.2.0"
 description = "High-level API for the TC/TCC peripherals found on the Microchip SAM MCUs."
 authors = ["Adam Jacobus"]
 repository = "https://github.com/proman21/samd-timer"
