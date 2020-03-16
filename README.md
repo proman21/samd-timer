@@ -12,14 +12,12 @@ This library provides the `Timer` and `ControlTimer` types for working safely wi
 
 Provides finer grain control over your timers than the abstraction used by [`atsamd-hal`](https://github.com/atsamd-rs/atsamd/). Simply drop in the library; it works with the `atsamd-hal` clock system.
 
-**CURRENTLY ONLY SUPPORTS THE SAMx5x FAMILIES OF MCUs. SAMD21 SUPPORT IN THE WORKS.**
-
 ## Usage
 
 Add the following line to your `Cargo.toml`.
 
 ```toml
-samd-timer = "0.1.0"
+samd-timer = "0.2.0"
 ```
 
 The following feature flags control which MCU variant you are targetting.
@@ -84,23 +82,23 @@ fn main() {
 - [x] Dead-time Insertion Generator
 - [x] Output Matrixing
 - [x] Pattern Generation
-- [] Fault Control
-- [] Event Control
-- [] Master-Slave Operation
+- [ ] Fault Control
+- [ ] Event Control
+- [ ] Master-Slave Operation
 - [x] Double Buffering
 
 ### TC
 
 - [x] 8-bit mode (incl. PER register)
 - [x] 16-bit mode
-- [] 32-bit mode
+- [ ] 32-bit mode
 - [x] Interrupt Control
 - [x] One-Shot Operation
 - [x] Direction changing
 - [x] Waveform Generation
 - [x] Waveform Output Inversion
 - [x] Capture Channels
-- [] Event Control
+- [ ] Event Control
 - [x] Double Buffering (SAMx5x)
 - [x] Capture Modes (SAMx5x)
 - [x] Capture on Pin (SAMx5x)
