@@ -7,7 +7,6 @@ pub use crate::config::{
     WaveformSelect,
 };
 
-use crate::target_device::{TCC0, TCC1};
 use crate::target_device::tcc0::{
     RegisterBlock,
     ctrla::RESOLUTION_A,
@@ -409,7 +408,12 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value before being written to the register.
     /// Use `set_cc` to set the CC value.
     pub fn set_cc_dither(&mut self, index: usize, value: u8) {
-        tcc_reg_res!(dither, self.tcc, cc, index, modify, |_, w| unsafe { w.dither().bits(value) });
+        tcc_reg_res!(dither, self.tcc, cc, index, modify, |_, w| unsafe {
+            #[cfg(feature = "samd21")]
+            return w.dithercy().bits(value);
+            #[cfg(not(feature = "samd21"))]
+            return w.dither().bits(value);
+        });
 
         let index_bitmask = 0x1 << (index + 8);
         while self.tcc.syncbusy.read().bits() & index_bitmask == index_bitmask {}
@@ -426,7 +430,11 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
         let index_bitmask = 0x1 << (index + 8);
         while self.tcc.syncbusy.read().bits() & index_bitmask == index_bitmask {}
 
-        tcc_reg_res!(dither, self.tcc, cc, index, read, dither, bits)
+        #[cfg(feature = "samd21")]
+        return tcc_reg_res!(dither, self.tcc, cc, index, read, dithercy, bits);
+
+        #[cfg(not(feature = "samd21"))]
+        return tcc_reg_res!(dither, self.tcc, cc, index, read, dither, bits);
     }
 
     /// Set the capture/compare buffer register value for a given channel.
@@ -440,6 +448,10 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value before being written to the register.
     /// Use `set_cc_buffer_dither` to set the dither value.
     pub fn set_cc_buffer(&mut self, index: usize, value: u32) {
+        #[cfg(feature = "samd21")]
+        tcc_reg_res!(self.tcc, ccb, index, modify, |_, w| unsafe { w.ccb().bits(value) });
+
+        #[cfg(not(feature = "samd21"))]
         tcc_reg_res!(self.tcc, ccbuf, index, modify, |_, w| unsafe { w.ccbuf().bits(value) });
         
         let index_bitmask = 0x1 << (index + 8);
@@ -457,7 +469,10 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
         let index_bitmask = 0x1 << (index + 8);
         while self.tcc.syncbusy.read().bits() & index_bitmask == index_bitmask { }
 
-        tcc_reg_res!(self.tcc, ccbuf, index, read, ccbuf, bits)
+        #[cfg(feature = "samd21")]
+        return tcc_reg_res!(self.tcc, ccb, index, read, ccb, bits);
+        #[cfg(not(feature = "samd21"))]
+        return tcc_reg_res!(self.tcc, ccbuf, index, read, ccbuf, bits);
     }
 
     /// Set the capture/compare buffer register dither for a given channel.
@@ -471,6 +486,9 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value before being written to the register.
     /// Use `set_cc_buffer_dither` to set the dither value.
     pub fn set_cc_buffer_dither(&mut self, index: usize, value: u8) {
+        #[cfg(feature = "samd21")]
+        tcc_reg_res!(dither, self.tcc, ccb, index, modify, |_, w| unsafe { w.dithercyb().bits(value) });
+        #[cfg(not(feature = "samd21"))]
         tcc_reg_res!(dither, self.tcc, ccbuf, index, modify, |_, w| unsafe { w.ditherbuf().bits(value) });
         
         let index_bitmask = 0x1 << (index + 8);
@@ -488,7 +506,10 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
         let index_bitmask = 0x1 << (index + 8);
         while self.tcc.syncbusy.read().bits() & index_bitmask == index_bitmask { }
 
-        tcc_reg_res!(dither, self.tcc, ccbuf, index, read, ditherbuf, bits)
+        #[cfg(feature = "samd21")]
+        return tcc_reg_res!(dither, self.tcc, ccb, index, read, dithercyb, bits);
+        #[cfg(not(feature = "samd21"))]
+        return tcc_reg_res!(dither, self.tcc, ccbuf, index, read, ditherbuf, bits);
     }
 
     /// Set the period value of the timer.
@@ -529,6 +550,9 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value before being written to the register.
     /// Use `set_period_buffer_dither` to set the dither value.
     pub fn set_period_buffer(&mut self, value: u32) {
+        #[cfg(feature = "samd21")]
+        tcc_reg_res!(self.tcc, perb, modify, |_, w| unsafe { w.perb().bits(value) });
+        #[cfg(not(feature = "samd21"))]
         tcc_reg_res!(self.tcc, perbuf, modify, |_, w| unsafe { w.perbuf().bits(value) });
         
         while self.tcc.syncbusy.read().per().bit_is_set() {}
@@ -542,7 +566,10 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value after reading from the register.
     /// Use `get_period_buffer_dither` to get the dither value.
     pub fn get_period_buffer(&self) -> u32 {
-        tcc_reg_res!(self.tcc, perbuf, read, perbuf, bits)
+        #[cfg(feature = "samd21")]
+        return tcc_reg_res!(self.tcc, perb, read, perb, bits);
+        #[cfg(not(feature = "samd21"))]
+        return tcc_reg_res!(self.tcc, perbuf, read, perbuf, bits);
     }
 
     /// Set the period buffer dither value of the timer.
@@ -554,6 +581,9 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value before being written to the register.
     /// Use `set_period_buffer` to set the period buffer value.
     pub fn set_period_buffer_dither(&mut self, value: u8) {
+        #[cfg(feature = "samd21")]
+        tcc_reg_res!(dither, self.tcc, perb, modify, |_, w| unsafe { w.dithercyb().bits(value) });
+        #[cfg(not(feature = "samd21"))]
         tcc_reg_res!(dither, self.tcc, perbuf, modify, |_, w| unsafe { w.ditherbuf().bits(value) });
     }
 
@@ -565,7 +595,10 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// will be performed on the value after reading from the register.
     /// Use `get_period_buffer` to get the period value.
     pub fn get_period_buffer_dither(&self) -> u8 {
-        tcc_reg_res!(dither, self.tcc, perbuf, read, ditherbuf, bits)
+        #[cfg(feature = "samd21")]
+        return tcc_reg_res!(dither, self.tcc, perb, read, dithercyb, bits);
+        #[cfg(not(feature = "samd21"))]
+        return tcc_reg_res!(dither, self.tcc, perbuf, read, ditherbuf, bits);
     }
 
     /// Set the pattern value of each waveform output as specified by the
@@ -605,6 +638,11 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     /// Set the pattern value buffer of each waveform output as specified by
     /// the provided bitfield.
     pub fn set_pattern_value_buffer(&mut self, value: WaveformSelect) {
+        #[cfg(feature = "samd21")]
+        self.tcc.pattb.modify(|r, w| unsafe {
+            w.bits(((value.bits() as u16) << 8) + (r.bits() & 0xFF))
+        });
+        #[cfg(not(feature = "samd21"))]
         self.tcc.pattbuf.modify(|r, w| unsafe {
             w.bits(((value.bits() as u16) << 8) + (r.bits() & 0xFF))
         });
@@ -616,12 +654,22 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     pub fn get_pattern_value_buffer(&self) -> WaveformSelect {
         while self.tcc.syncbusy.read().patt().bit_is_set() {}
 
-        WaveformSelect::from_bits_truncate((self.tcc.pattbuf.read().bits() >> 8).try_into().unwrap())
+        #[cfg(feature = "samd21")]
+        let pattbuf_bits = self.tcc.pattb.read().bits();
+        #[cfg(not(feature = "samd21"))]
+        let pattbuf_bits = self.tcc.pattbuf.read().bits();
+
+        WaveformSelect::from_bits_truncate((pattbuf_bits >> 8).try_into().unwrap())
     }
 
     /// Set the pattern enable buffer of each waveform output as specified by
     /// the provided bitfield.
     pub fn set_pattern_enable_buffer(&mut self, enable: WaveformSelect) {
+        #[cfg(feature = "samd21")]
+        self.tcc.pattb.modify(|r, w| unsafe {
+            w.bits((r.bits() & 0xFF00) + (enable.bits() as u16))
+        });
+        #[cfg(not(feature = "samd21"))]
         self.tcc.pattbuf.modify(|r, w| unsafe {
             w.bits((r.bits() & 0xFF00) + (enable.bits() as u16))
         });
@@ -633,6 +681,11 @@ impl<T> ControlTimer<T> where T: Deref<Target=RegisterBlock> {
     pub fn get_pattern_enable_buffer(&self) -> WaveformSelect {
         while self.tcc.syncbusy.read().patt().bit_is_set() {}
 
-        WaveformSelect::from_bits_truncate((self.tcc.pattbuf.read().bits() & 0x00FF).try_into().unwrap())
+        #[cfg(feature = "samd21")]
+        let pattbuf_bits = self.tcc.pattb.read().bits();
+        #[cfg(not(feature = "samd21"))]
+        let pattbuf_bits = self.tcc.pattbuf.read().bits();
+
+        WaveformSelect::from_bits_truncate((pattbuf_bits & 0x00FF).try_into().unwrap())
     }
 }

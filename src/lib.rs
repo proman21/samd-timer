@@ -48,8 +48,9 @@
 //! a `ControlTimer` by using one of the instance specific methods. These
 //! methods take care of setting up the relavent clocks for the peripheral
 //! instance.
-
 #![no_std]
+
+#![allow(dead_code)]
 
 #[macro_use]
 extern crate smart_default;

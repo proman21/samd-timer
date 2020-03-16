@@ -1,5 +1,31 @@
 //! Timer Counter.
 
+#[cfg(not(feature = "samd21"))]
+macro_rules! syncbusy_check {
+    ($mode:expr, $tc:expr, $flag:ident) => {
+        tc0_mode_access!($mode, $tc, syncbusy, read, $flag, bit_is_set);
+    };
+    ($tc:expr, $flag:ident) => {
+        $tc.count8().syncbusy.read().$flag().bit_is_set()
+    }
+}
+
+#[cfg(feature = "samd21")]
+macro_rules! syncbusy_check {
+    ($mode:expr, $tc:expr, $flag:ident) => {
+        tc0_mode_access!($mode, $tc, status, read, syncbusy, bit_is_set);
+    };
+    ($tc:expr, $flag:ident) => {
+        $tc.count8().status.read().syncbusy().bit_is_set()
+    }
+}
+
+#[cfg(feature = "samd21")]
+mod samd21;
+
+#[cfg(any(feature = "samd51", feature = "same54"))]
+mod samx5x;
+
 use core::ops::Deref;
 use core::marker::PhantomData;
 
@@ -9,11 +35,11 @@ pub use crate::config::{
     Count16,
 };
 
-#[cfg(feature = "samd51")]
-use crate::target_device::tc0::RegisterBlock;
-
 #[cfg(feature = "samd21")]
 use crate::target_device::tc3::RegisterBlock;
+
+#[cfg(feature = "samd51")]
+use crate::target_device::tc0::RegisterBlock;
 
 bitflags! {
     /// A bitfield that describes the interrupt flags that a timer can trigger.
@@ -35,7 +61,7 @@ bitflags! {
 /// ## 8-bit Mode
 /// 
 /// When using `Timer<T, Count8>` mode, you can access a period and period
-/// buffer value.
+/// buffer value (on SAMX5X targets).
 pub struct Timer<T, C: CountMode> where T: Deref<Target=RegisterBlock> {
     tc: T,
     _mode: PhantomData<C>,
@@ -67,7 +93,7 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
             }
         });
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, enable, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, enable) {}
     }
 
     /// Disable the timer.
@@ -80,7 +106,7 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
             }
         });
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, enable, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, enable) {}
     }
 
     /// Disable and reset the timer.
@@ -89,7 +115,7 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
 
         tc0_mode_access!(C::MODE, self.tc, ctrla, modify, |_, w| w.swrst().set_bit());
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, swrst, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, swrst) {}
     }
 
      /// Reset and reconfigure the timer.
@@ -118,14 +144,6 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
         tc0_mode_access!(C::MODE, self.tc, status, read, stop, bit_is_set)
     }
 
-    /// Force the values stored in buffer registers to be written into their
-    /// counterpart registers.
-    pub fn force_buffer_update(&mut self) {
-        tc0_mode_access!(C::MODE, self.tc, ctrlbset, write, |w| w.cmd().update());
-
-        while tc0_mode_access!(C::MODE, self.tc, ctrlbset, read, cmd, is_update) {}
-    }
-
     /// Return true if the timer is in oneshot mode.
     pub fn get_oneshot(&self) -> bool {
         tc0_mode_access!(C::MODE, self.tc, ctrlbset, read, oneshot, bit_is_set)
@@ -135,27 +153,7 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
     pub fn set_oneshot(&mut self, oneshot: bool) {
         tc0_mode_access!(C::MODE, self.tc, ctrlbset, write, |w| w.oneshot().bit(oneshot));
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, ctrlb, bit_is_set) {}
-    }
-
-    /// Enable double buffering for period and compare values.
-    /// 
-    /// Values in the buffers for each of the listed configurations will be
-    /// copied to the timer when hardware update conditions occur.
-    pub fn enable_double_buffering(&mut self) {
-        tc0_mode_access!(C::MODE, self.tc, ctrlbclr, write, |w| w.lupd().set_bit());
-
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, ctrlb, bit_is_set) {}
-    }
-
-    /// Disable double buffering for period and compare values.
-    /// 
-    /// Values in the buffers for each of the listed configurations will NOT be
-    /// copied to the timer when hardware update conditions occur.
-    pub fn disable_double_buffering(&mut self) {
-        tc0_mode_access!(C::MODE, self.tc, ctrlbset, write, |w| w.lupd().set_bit());
-
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, ctrlb, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, ctrlb) {}
     }
 
     /// Enable or disable the timer interrupts specified by the given bitfield.
@@ -187,7 +185,7 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
             Direction::Down => tc0_mode_access!(C::MODE, self.tc, ctrlbset, modify, |_, w| w.dir().set_bit())
         }
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, ctrlb, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, ctrlb) {}
     }
 
     /// Reverse the counting direction of the timer.
@@ -204,26 +202,11 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
         }
     }
 
-    /// Get the current value of the counter.
-    /// 
-    /// # Synchronisation
-    /// 
-    /// This operation requires synchronisation to read the value, which will block until complete.
-    pub fn get_count(&self) -> C::Size {
-        tc0_mode_access!(C::MODE, self.tc, ctrlbset, write, |w| {
-            w.cmd().readsync()
-        });
-
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, count, bit_is_set) {}
-
-        C::get_count(&self.tc)
-    }
-
     /// Set the value of the timer counter.
     pub fn set_count(&mut self, value: C::Size) {
         C::set_count(&self.tc, value);
 
-        while tc0_mode_access!(C::MODE, self.tc, syncbusy, read, count, bit_is_set) {}
+        while syncbusy_check!(C::MODE, self.tc, count) {}
     }
 
     /// Set the compare/capture value of channel 0.
@@ -231,39 +214,9 @@ impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
         C::set_cc0(&self.tc, value);
     }
 
-    /// Get the compare/capture value of channel 0.
-    pub fn get_cc0(&self) -> C::Size {
-        C::get_cc0(&self.tc)
-    }
-
-    /// Set the compare/capture value buffer of channel 0.
-    pub fn set_cc0_buffer(&mut self, value: C::Size) {
-        C::set_cc0_buf(&self.tc, value);
-    }
-
-    /// Get the compare/capture value buffer of channel 0.
-    pub fn get_cc0_buffer(&self) -> C::Size {
-        C::get_cc0_buf(&self.tc)
-    }
-
     /// Set the compare/capture value of channel 1.
     pub fn set_cc1(&mut self, value: C::Size) {
         C::set_cc1(&self.tc, value);
-    }
-
-    /// Get the compare/capture value of channel 1.
-    pub fn get_cc1(&self) -> C::Size {
-        C::get_cc1(&self.tc)
-    }
-
-    /// Set the compare/capture buffer value of channel 1.
-    pub fn set_cc1_buffer(&mut self, value: C::Size) {
-        C::set_cc1_buf(&self.tc, value);
-    }
-
-    /// Get the compare/capture buffer value of channel 1.
-    pub fn get_cc1_buffer(&self) -> C::Size {
-        C::get_cc1_buf(&self.tc)
     }
 }
 
@@ -277,18 +230,6 @@ impl<T> Timer<T, Count8> where T: Deref<Target=RegisterBlock> {
     pub fn set_period(&mut self, per: u8) {
         self.tc.count8().per.write(|w| unsafe { w.per().bits(per) });
 
-        while self.tc.count8().syncbusy.read().per().bit_is_set() {}
-    }
-
-    /// Get period buffer value
-    pub fn get_period_buffer(&self) -> u8 {
-        while self.tc.count8().syncbusy.read().per().bit_is_set() {}
-
-        self.tc.count8().perbuf.read().perbuf().bits()
-    }
-
-    /// Set period buffer value
-    pub fn set_period_buffer(&mut self, perbuf: u8) {
-        self.tc.count8().perbuf.write(|w| unsafe { w.perbuf().bits(perbuf) });
+        while syncbusy_check!(self.tc, per) {}
     }
 }

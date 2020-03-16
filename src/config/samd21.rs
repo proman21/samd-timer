@@ -2,6 +2,7 @@ use core::marker::PhantomData;
 use core::ops::Deref;
 
 use crate::*;
+use crate::config::{CountMode, TimerWaveGen};
 
 use crate::target_device::PM;
 use crate::target_device::tc3::RegisterBlock;
@@ -17,7 +18,7 @@ use crate::target_device::{
 use crate::target_device::{
     TC6,
     TC7,
-}
+};
 
 use atsamd_hal::samd21::clock::{
     Tcc0Tcc1Clock,
@@ -40,6 +41,9 @@ tc!(
 );
 
 #[cfg(feature = "samd21j18a")]
+use atsamd_hal::samd21::clock::Tc6Tc7Clock;
+
+#[cfg(feature = "samd21j18a")]
 tc!(
     PM,
     (tc6, Tc6Tc7Clock, TC6, apbcmask),
@@ -60,11 +64,11 @@ impl<C: CountMode> TimerConfig<TC<C>> {
     }
 
     pub(crate) fn configure<T: Deref<Target = RegisterBlock>>(&self, instance: &T) {
-        self.generic_configure(&instance);
+        self.generic_configure::<T>(&instance);
 
-        tc0_mode_access!(C::MODE, rb, ctrla, modify, |_, w| unsafe {
+        tc0_mode_access!(C::MODE, instance, ctrla, modify, |_, w| unsafe {
             w.mode().bits(C::MODE as u8)
-                .wavegen().bits(self.wave_gen as u8)
+                .wavegen().bits(self.kind.wave_gen as u8)
         });
     }
 }
