@@ -104,3 +104,14 @@ pub mod timer;
 pub use config::{TimerConfig, TC, TCC, Count8, Count16};
 pub use control::ControlTimer;
 pub use timer::Timer;
+
+mod private {
+    use super::{TC, TCC, Count8, Count16, Count32, config::CountMode};
+    
+    pub trait Sealed {}
+    
+    impl Sealed for TCC {}
+    impl<C: CountMode> Sealed for TC<C> {}
+    impl Sealed for Count8 {}
+    impl Sealed for Count16 {}
+}

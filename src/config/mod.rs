@@ -41,23 +41,6 @@ mod samx5x;
 
 mod types;
 
-mod private {
-    use super::{
-        TC,
-        TCC,
-        CountMode,
-        Count8,
-        Count16,
-    };
-    
-    pub trait Sealed {}
-    
-    impl Sealed for TCC {}
-    impl<C: CountMode> Sealed for TC<C> {}
-    impl Sealed for Count8 {}
-    impl Sealed for Count16 {}
-}
-
 use core::ops::Deref;
 
 use crate::target_device::tcc0::RegisterBlock as TCC_RB;
@@ -251,7 +234,7 @@ impl TimerConfig<TCC> {
 /// 
 /// [`Count8`]: samd_timer::Count8
 /// [`Count16`]: samd_timer::Count16
-pub trait CountMode: Default + private::Sealed {
+pub trait CountMode: Default + crate::private::Sealed {
     const MODE: TimerMode;
     type Size;
 
