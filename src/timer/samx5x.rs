@@ -7,7 +7,11 @@ pub use crate::config::{
     Count16,
 };
 
-use crate::target_device::tc0::RegisterBlock;
+pub use crate::target_device::tc0::RegisterBlock;
+use crate::target_device::{TC0, TC1, TC2, TC3};
+
+tc_32_bit!(TC0_1, TC0, TC1);
+tc_32_bit!(TC2_3, TC2, TC3);
 
 impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
     /// Force the values stored in buffer registers to be written into their

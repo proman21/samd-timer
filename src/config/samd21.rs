@@ -3,6 +3,7 @@ use core::ops::Deref;
 
 use crate::*;
 use crate::config::{CountMode, TimerWaveGen};
+use crate::timer::TC4_5;
 
 use crate::target_device::PM;
 use crate::target_device::tc3::RegisterBlock;
@@ -40,6 +41,11 @@ tc!(
     (tc5, Tc4Tc5Clock, TC5, apbcmask),
 );
 
+tc!(
+    PM,
+    (tc4_5, Tc4Tc5Clock, TC4_5)
+);
+
 #[cfg(feature = "samd21j18a")]
 use atsamd_hal::samd21::clock::Tc6Tc7Clock;
 
@@ -48,6 +54,12 @@ tc!(
     PM,
     (tc6, Tc6Tc7Clock, TC6, apbcmask),
     (tc7, Tc6Tc7Clock, TC7, apbcmask),
+);
+
+#[cfg(feature = "samd21j18a")]
+tc!(
+    PM,
+    (tc6_7, Tc6Tc7Clock, TC6_7, apbcmask, tc6, tc7),
 );
 
 /// Type marker for [`Timer`](samd_timer::Timer) specific configuration.

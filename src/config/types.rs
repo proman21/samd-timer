@@ -137,6 +137,7 @@ pub enum TimerMode {
     #[default]
     Count16 = 0,
     Count8,
+    Count32,
 }
 
 #[derive(Clone, Copy, SmartDefault)]

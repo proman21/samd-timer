@@ -3,7 +3,13 @@ use core::mem;
 use crate::Timer;
 use crate::config::CountMode;
 
-use crate::target_device::tc3::RegisterBlock;
+pub use crate::target_device::tc3::RegisterBlock;
+
+#[cfg(feature = "samd21j18a")]
+use crate::target_device::{TC6, TC7};
+
+#[cfg(feature = "samd21j18a")]
+tc_32_bit!(TC6_7, TC6, TC7);
 
 impl<T, C: CountMode> Timer<T, C> where T: Deref<Target=RegisterBlock> {
     /// Get the current value of the counter.

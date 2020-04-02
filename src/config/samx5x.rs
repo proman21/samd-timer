@@ -1,6 +1,9 @@
 use core::marker::PhantomData;
 
 use crate::config::*;
+use crate::timer::{TC0_1, TC2_3};
+#[cfg(not(feature = "samd51g19a"))]
+use crate::timer::TC4_5;
 
 use crate::target_device::tc0::RegisterBlock;
 
@@ -50,11 +53,23 @@ tc!(
     (tc3, Tc2Tc3Clock, TC3, apbbmask),
 );
 
+tc!(
+    MCLK,
+    (tc0_1, Tc0Tc1Clock, TC0_1, apbamask, tc0, tc1),
+    (tc2_3, Tc2Tc3Clock, TC2_3, apbbmask, tc2, tc3),
+);
+
 #[cfg(not(feature = "samd51g19a"))]
 tc!(
     MCLK,
     (tc4, Tc4Tc5Clock, TC4, apbcmask),
     (tc5, Tc4Tc5Clock, TC5, apbcmask),
+);
+
+#[cfg(not(feature = "samd51g19a"))]
+tc!(
+    MCLK,
+    (tc4_5, Tc4Tc5Clock, TC4_5, apbcmask, tc4, tc5),
 );
 
 #[cfg(not(feature = "samd51g19a"))]

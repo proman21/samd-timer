@@ -21,10 +21,35 @@ macro_rules! tcc {
 
 macro_rules! tc {
     ($mclk:ty, $(($name:ident, $clock:ty, $instance:ty, $apb:ident),)+) => {
-        impl<C: $crate::config::CountMode> TimerConfig<TC<C>> {
+        impl TimerConfig<TC<Count8>> {
             $(
-                pub fn $name(&self, mclk: &mut $mclk, _clock: &$clock, tc: $instance) -> $crate::timer::Timer<$instance, C> {
+                pub fn $name(&self, mclk: &mut $mclk, _clock: &$clock, tc: $instance) -> $crate::timer::Timer<$instance, Count8> {
                     mclk.$apb.modify(paste::expr!{ |_, r| r.[<$name _>]().set_bit() });
+
+                    self.configure(&tc);
+                    $crate::timer::Timer::new(tc)
+                }
+            )+
+        }
+
+        impl TimerConfig<TC<Count16>> {
+            $(
+                pub fn $name(&self, mclk: &mut $mclk, _clock: &$clock, tc: $instance) -> $crate::timer::Timer<$instance, Count16> {
+                    mclk.$apb.modify(paste::expr!{ |_, r| r.[<$name _>]().set_bit() });
+
+                    self.configure(&tc);
+                    $crate::timer::Timer::new(tc)
+                }
+            )+
+        }
+    };
+    ($mclk:ty, $(($name:ident, $clock:ty, $instance:ty, $apb:ident, $m:ident, $s:ident),)+) => {
+        impl TimerConfig<TC<Count32>> {
+            $(
+                pub fn $name(&self, mclk: &mut $mclk, _clock: &$clock, tc: $instance) -> $crate::timer::Timer<$instance, Count32> {
+                    mclk.$apb.modify(paste::expr!{ |_, r| {
+                        r.[<$m _>]().set_bit().[<$s _>]().set_bit()
+                    } });
 
                     self.configure(&tc);
                     $crate::timer::Timer::new(tc)
@@ -315,7 +340,8 @@ macro_rules! count_mode {
 
 count_mode!(
     (Count8, TimerMode::Count8, u8, count8),
-    (Count16, TimerMode::Count16, u16, count16)
+    (Count16, TimerMode::Count16, u16, count16),
+    (Count32, TimerMode::Count32, u32, count32)
 );
 
 impl<C: CountMode> TimerConfig<TC<C>> {
@@ -326,6 +352,11 @@ impl<C: CountMode> TimerConfig<TC<C>> {
 
     /// Create a configuration for `Timer` with a 16-bit counter.
     pub fn count16() -> TimerConfig<TC<Count16>> {
+        Default::default()
+    }
+
+    /// Create a configuration for `Timer` with a 32-bit counter.
+    pub fn count32() -> TimerConfig<TC<Count32>> {
         Default::default()
     }
 

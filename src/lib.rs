@@ -82,7 +82,8 @@ macro_rules! tc0_mode_access {
             use $crate::config::TimerMode::*;
             match $mode {
                 Count8 => $rb.count8().$reg.read()$(.$p())+,
-                Count16 => $rb.count16().$reg.read()$(.$p())+
+                Count16 => $rb.count16().$reg.read()$(.$p())+,
+                Count32 => $rb.count32().$reg.read()$(.$p())+
             }
         }
     };
@@ -91,7 +92,8 @@ macro_rules! tc0_mode_access {
             use $crate::config::TimerMode::*;
             match $mode {
                 Count8 => $rb.count8().$reg.$op($c),
-                Count16 => $rb.count16().$reg.$op($c)
+                Count16 => $rb.count16().$reg.$op($c),
+                Count32 => $rb.count32().$reg.$op($c)
             }
         }
     };
@@ -101,7 +103,7 @@ pub mod config;
 pub mod control;
 pub mod timer;
 
-pub use config::{TimerConfig, TC, TCC, Count8, Count16};
+pub use config::{TimerConfig, TC, TCC, Count8, Count16, Count32};
 pub use control::ControlTimer;
 pub use timer::Timer;
 
@@ -114,4 +116,5 @@ mod private {
     impl<C: CountMode> Sealed for TC<C> {}
     impl Sealed for Count8 {}
     impl Sealed for Count16 {}
+    impl Sealed for Count32 {}
 }
