@@ -1,6 +1,6 @@
 //! Timer Counter.
 
-#[cfg(not(feature = "samd21"))]
+#[cfg(feature = "samx5x")]
 macro_rules! syncbusy_check {
     ($mode:expr, $tc:expr, $flag:ident) => {
         tc0_mode_access!($mode, $tc, syncbusy, read, $flag, bit_is_set);
@@ -23,7 +23,7 @@ macro_rules! syncbusy_check {
 #[cfg(feature = "samd21")]
 mod samd21;
 
-#[cfg(any(feature = "samd51", feature = "same54"))]
+#[cfg(feature = "samx5x")]
 mod samx5x;
 
 use core::ops::Deref;
@@ -36,7 +36,12 @@ pub use crate::config::{
 };
 
 #[cfg(feature = "samd21")]
-use crate::target_device::tc3::RegisterBlock;
+
+#[cfg(feature = "samx5x")]
+use samx5x::RegisterBlock;
+
+#[cfg(feature = "samx5x")]
+pub use samx5x::{TC0_1, TC2_3};
 
 #[cfg(feature = "samd51")]
 use crate::target_device::tc0::RegisterBlock;

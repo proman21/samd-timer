@@ -2,6 +2,7 @@
 //! 
 //! See [`TimerConfig`](samd_timer::TimerConfig) for more information on how to
 //! use the types in this module.
+
 macro_rules! tcc {
     ($mclk:ty, $(($name:ident, $clock:ty, $instance:ty, $apb:ident),)+) => {
         impl TimerConfig<TCC> {
@@ -35,7 +36,7 @@ macro_rules! tc {
 
 #[cfg(feature = "samd21")]
 mod samd21;
-#[cfg(any(feature = "samd51", feature = "same54"))]
+#[cfg(feature = "samx5x")]
 mod samx5x;
 
 mod types;
@@ -60,7 +61,7 @@ mod private {
 use core::ops::Deref;
 
 use crate::target_device::tcc0::RegisterBlock as TCC_RB;
-#[cfg(not(feature = "samd21"))]
+#[cfg(feature = "samx5x")]
 use crate::target_device::tc0::RegisterBlock as TC_RB;
 #[cfg(feature = "samd21")]
 use crate::target_device::tc3::RegisterBlock as TC_RB;
@@ -68,7 +69,7 @@ use crate::target_device::tc3::RegisterBlock as TC_RB;
 #[cfg(feature = "samd21")]
 pub use samd21::TC;
 
-#[cfg(any(feature = "samd51", feature = "same54"))]
+#[cfg(feature = "samx5x")]
 pub use samx5x::TC;
 
 pub use self::types::*;
@@ -203,7 +204,7 @@ impl TimerConfig<TCC> {
 
     pub(crate) fn configure<T>(&self, instance: &T) where T: Deref<Target=TCC_RB> {
         instance.ctrla.write(|w| unsafe {
-            #[cfg(not(feature = "samd21"))]
+            #[cfg(feature = "samx5x")]
             w.dmaos().bit(self.dma_oneshot)
                 .cpten4().bit(self.kind.channels.intersects(Channels::CHAN_4))
                 .cpten5().bit(self.kind.channels.intersects(Channels::CHAN_5));
@@ -260,13 +261,13 @@ pub trait CountMode: Default + private::Sealed {
     fn set_cc0(rb: &TC_RB, value: Self::Size);
     fn get_cc1(rb: &TC_RB) -> Self::Size;
     fn set_cc1(rb: &TC_RB, value: Self::Size);
-    #[cfg(not(feature = "samd21"))]
+    #[cfg(feature = "samx5x")]
     fn get_cc0_buf(rb: &TC_RB) -> Self::Size;
-    #[cfg(not(feature = "samd21"))]
+    #[cfg(feature = "samx5x")]
     fn set_cc0_buf(rb: &TC_RB, value: Self::Size);
-    #[cfg(not(feature = "samd21"))]
+    #[cfg(feature = "samx5x")]
     fn get_cc1_buf(rb: &TC_RB) -> Self::Size;
-    #[cfg(not(feature = "samd21"))]
+    #[cfg(feature = "samx5x")]
     fn set_cc1_buf(rb: &TC_RB, value: Self::Size);
 }
 
@@ -305,22 +306,22 @@ macro_rules! count_mode {
                     rb.$reg().cc[1].write(|w| unsafe { w.cc().bits(value) });
                 }
             
-                #[cfg(not(feature = "samd21"))]
+                #[cfg(feature = "samx5x")]
                 fn get_cc0_buf(rb: &TC_RB) -> Self::Size {
                     rb.$reg().ccbuf[0].read().ccbuf().bits()
                 }
             
-                #[cfg(not(feature = "samd21"))]
+                #[cfg(feature = "samx5x")]
                 fn set_cc0_buf(rb: &TC_RB, value: Self::Size) {
                     rb.$reg().ccbuf[0].write(|w| unsafe { w.ccbuf().bits(value) });
                 }
             
-                #[cfg(not(feature = "samd21"))]
+                #[cfg(feature = "samx5x")]
                 fn get_cc1_buf(rb: &TC_RB) -> Self::Size {
                     rb.$reg().ccbuf[1].read().ccbuf().bits()
                 }
             
-                #[cfg(not(feature = "samd21"))]
+                #[cfg(feature = "samx5x")]
                 fn set_cc1_buf(rb: &TC_RB, value: Self::Size) {
                     rb.$reg().ccbuf[1].write(|w| unsafe { w.ccbuf().bits(value) });
                 }
@@ -349,7 +350,7 @@ impl<C: CountMode> TimerConfig<TC<C>> {
     where T: Deref<Target=TC_RB>
     {
         tc0_mode_access!(C::MODE, instance, ctrla, write, |w| unsafe {
-            #[cfg(not(feature = "samd21"))]
+            #[cfg(feature = "samx5x")]
             w.alock().bit(self.auto_lock);
 
             w.prescsync().bits(self.sync as u8)
