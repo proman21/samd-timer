@@ -7,6 +7,9 @@ pub use crate::config::{
     WaveformSelect,
 };
 
+use crate::target_device::{TCC0, TCC1};
+#[cfg(all(feature = "samx5x", not(feature = "samd51g19a")))]
+use crate::target_device::{TCC2, TCC3};
 use crate::target_device::tcc0::{
     RegisterBlock,
     ctrla::RESOLUTION_A,
@@ -80,6 +83,22 @@ macro_rules! tcc_reg_res {
     };
 }
 
+macro_rules! tcc_32_bit {
+    ($name:ident, $m:ty, $s:ty) => {
+        pub struct $name(pub $m, pub $s);
+
+        impl $crate::control::TCCInstance for $name {
+            fn master_rb(&self) -> &RegisterBlock {
+                &self.0
+            }
+
+            fn slave_rb(&self) -> Option<&RegisterBlock> {
+                Some(&self.1)
+            }
+        }
+    };
+}
+
 bitflags! {
     /// A bitfield that describes the interrupt flags that a timer can trigger.
     #[derive(Default)]
@@ -134,6 +153,24 @@ pub enum WaveformGen {
     /// Dual-Slope Top PWM
     DSTop
 }
+
+/// An interface for TCC instances.
+pub trait TCCInstance: crate::private::Sealed {
+    fn master_rb(&self) -> &RegisterBlock;
+    fn slave_rb(&self) -> Option<&RegisterBlock> {
+        None
+    }
+}
+
+impl<T> TCCInstance for T where T: Deref<Target = RegisterBlock> {
+    fn master_rb(&self) -> &RegisterBlock {
+        &self
+    }
+}
+
+tcc_32_bit!(TCC0_1, TCC0, TCC1);
+#[cfg(all(feature = "samx5x", not(feature = "samd51g19a")))]
+tcc_32_bit!(TCC2_3, TCC2, TCC3);
 
 /// `ControlTimer` is used to work with a TCC peripheral instance.
 /// 

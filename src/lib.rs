@@ -109,6 +109,11 @@ pub use timer::Timer;
 
 mod private {
     use super::{TC, TCC, Count8, Count16, Count32, config::CountMode};
+    use core::ops::Deref;
+    use super::target_device::tcc0::RegisterBlock;
+    use super::control::TCC0_1;
+    #[cfg(all(feature = "samx5x", not(feature = "samd51g19a")))]
+    use super::control::TCC2_3;
     
     pub trait Sealed {}
     
@@ -117,4 +122,8 @@ mod private {
     impl Sealed for Count8 {}
     impl Sealed for Count16 {}
     impl Sealed for Count32 {}
+    impl<T> Sealed for T where T: Deref<Target = RegisterBlock> {}
+    impl Sealed for TCC0_1 {}
+    #[cfg(all(feature = "samx5x", not(feature = "samd51g19a")))]
+    impl Sealed for TCC2_3 {}
 }
