@@ -43,7 +43,7 @@ tc!(
 
 tc!(
     PM,
-    (tc4_5, Tc4Tc5Clock, TC4_5)
+    (tc4_5, Tc4Tc5Clock, TC4_5, apbcmask, tc4, tc5),
 );
 
 #[cfg(feature = "samd21j18a")]
