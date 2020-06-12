@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["WaveformGen","Possible waveform generation modes for a TCC instance."]],"struct":[["ControlTimer","`ControlTimer` is used to work with a TCC peripheral instance."],["Interrupts","A bitfield that describes the interrupt flags that a timer can trigger."],["WaveformSelect","Bitfield used to select waveform outputs."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["config","Configuration types for `Timer` and `ControlTimer`."],["control","Timer Counter for Control applications."],["timer","Timer Counter."]],"struct":[["TC","Type marker for `Timer` specific configuration."]]});
