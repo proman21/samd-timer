@@ -50,7 +50,7 @@ pub use crate::config::{
 #[cfg(feature = "samd21")]
 use samd21::RegisterBlock;
 
-#[cfg(feature = "samd21j18a")]
+#[cfg(feature = "samd21j")]
 pub use samd21::TC6_7;
 
 #[cfg(feature = "samx5x")]
@@ -59,10 +59,10 @@ use samx5x::RegisterBlock;
 #[cfg(feature = "samx5x")]
 pub use samx5x::{TC0_1, TC2_3};
 
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 use crate::target_device::{TC4, TC5};
 
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 tc_32_bit!(TC4_5, TC4, TC5);
 
 bitflags! {

@@ -2,7 +2,7 @@ use core::marker::PhantomData;
 
 use crate::config::*;
 use crate::timer::{TC0_1, TC2_3};
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 use crate::timer::TC4_5;
 
 use crate::target_device::tc0::RegisterBlock;
@@ -17,7 +17,7 @@ use crate::target_device::{
     TC2,
     TC3,
 };
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 use crate::target_device::{
     TCC3,
     TCC4,
@@ -25,15 +25,15 @@ use crate::target_device::{
     TC5,
 };
 
-use atsamd_hal::samd51::clock::{
+use atsamd_hal::common::clock::{
     Tcc0Tcc1Clock,
     Tcc2Tcc3Clock,
     Tc0Tc1Clock,
     Tc2Tc3Clock,
 };
 
-#[cfg(not(feature = "samd51g19a"))]
-use atsamd_hal::samd51::clock::{
+#[cfg(not(feature = "samd51g"))]
+use atsamd_hal::common::clock::{
     Tc4Tc5Clock,
     Tcc4Clock,
 };
@@ -59,20 +59,20 @@ tc!(
     (tc2_3, Tc2Tc3Clock, TC2_3, apbbmask, tc2, tc3),
 );
 
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 tc!(
     MCLK,
     (tc4, Tc4Tc5Clock, TC4, apbcmask),
     (tc5, Tc4Tc5Clock, TC5, apbcmask),
 );
 
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 tc!(
     MCLK,
     (tc4_5, Tc4Tc5Clock, TC4_5, apbcmask, tc4, tc5),
 );
 
-#[cfg(not(feature = "samd51g19a"))]
+#[cfg(not(feature = "samd51g"))]
 tcc!(
     MCLK,
     (tcc3, Tcc2Tcc3Clock, TCC3, apbcmask),

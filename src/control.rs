@@ -17,65 +17,65 @@ macro_rules! tcc_reg_res {
     ($tcc:expr, $reg:ident, $op:ident, $c:expr) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => $tcc.$reg().$op($c),
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }.$op($c),
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }.$op($c),
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }.$op($c),
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }.$op($c),
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }.$op($c),
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }.$op($c),
         }
     };
     (dither, $tcc:expr, $reg:ident, $op:ident, $c:expr) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => {},
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }.$op($c),
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }.$op($c),
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }.$op($c),
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }.$op($c),
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }.$op($c),
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }.$op($c),
         }
     };
     ($tcc:expr, $reg:ident, read, $($ops:ident),+) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => $tcc.$reg().read()$(.$ops())+,
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }.read()$(.$ops())+,
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }.read()$(.$ops())+,
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }.read()$(.$ops())+,
         }
     };
     (dither, $tcc:expr, $reg:ident, read, $($ops:ident),+) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => 0,
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }.read()$(.$ops())+,
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }.read()$(.$ops())+,
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }.read()$(.$ops())+,
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }.read()$(.$ops())+,
         }
     };
     ($tcc:expr, $reg:ident, $index:expr, $op:ident, $c:expr) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => $tcc.$reg()[$index].$op($c),
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }[$index].$op($c),
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }[$index].$op($c),
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }[$index].$op($c),
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }[$index].$op($c),
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }[$index].$op($c),
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }[$index].$op($c),
         }
     };
     (dither, $tcc:expr, $reg:ident, $index:expr, $op:ident, $c:expr) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => {},
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }[$index].$op($c),
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }[$index].$op($c),
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }[$index].$op($c),
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }[$index].$op($c),
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }[$index].$op($c),
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }[$index].$op($c),
         }
     };
     ($tcc:expr, $reg:ident, $index:expr, read, $($ops:ident),+) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => $tcc.$reg()[$index].read()$(.$ops())+,
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }[$index].read()$(.$ops())+,
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }[$index].read()$(.$ops())+,
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }[$index].read()$(.$ops())+,
         }
     };
     (dither, $tcc:expr, $reg:ident, $index:expr, read, $($ops:ident),+) => {
         match $tcc.ctrla.read().resolution().variant() {
             RESOLUTION_A::NONE => 0,
-            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4>]() }[$index].read()$(.$ops())+,
-            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5>]() }[$index].read()$(.$ops())+,
-            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH4 => paste::expr!{ $tcc.[<$reg _dith4_mode>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH5 => paste::expr!{ $tcc.[<$reg _dith5_mode>]() }[$index].read()$(.$ops())+,
+            RESOLUTION_A::DITH6 => paste::expr!{ $tcc.[<$reg _dith6_mode>]() }[$index].read()$(.$ops())+,
         }
     };
 }

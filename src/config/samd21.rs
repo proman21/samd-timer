@@ -15,7 +15,7 @@ use crate::target_device::{
     TC4,
     TC5
 };
-#[cfg(feature = "samd21j18a")]
+#[cfg(feature = "samd21j")]
 use crate::target_device::{
     TC6,
     TC7,
@@ -46,17 +46,17 @@ tc!(
     (tc4_5, Tc4Tc5Clock, TC4_5, apbcmask, tc4, tc5),
 );
 
-#[cfg(feature = "samd21j18a")]
+#[cfg(feature = "samd21j")]
 use atsamd_hal::samd21::clock::Tc6Tc7Clock;
 
-#[cfg(feature = "samd21j18a")]
+#[cfg(feature = "samd21j")]
 tc!(
     PM,
     (tc6, Tc6Tc7Clock, TC6, apbcmask),
     (tc7, Tc6Tc7Clock, TC7, apbcmask),
 );
 
-#[cfg(feature = "samd21j18a")]
+#[cfg(feature = "samd21j")]
 tc!(
     PM,
     (tc6_7, Tc6Tc7Clock, TC6_7, apbcmask, tc6, tc7),
