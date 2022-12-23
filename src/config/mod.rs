@@ -3,23 +3,21 @@
 //! See [`TimerConfig`](samd_timer::TimerConfig) for more information on how to
 //! use the types in this module.
 
-macro_rules! tcc {
-    ($mclk:ty, $(($name:ident, $clock:ty, $instance:ty, $apb:ident),)+) => {
-        impl TimerConfig<TCC> {
-            $(
-                /// Build and configure a TCC instance.
-                pub fn $name(&self, mclk: &mut $mclk, _clock: &$clock, tcc: $instance) -> $crate::control::ControlTimer<$instance> {
-                    mclk.$apb.modify(paste::expr!{ |_, r| r.[<$name _>]().set_bit() });
-
-                    self.configure(&tcc);
-                    $crate::control::ControlTimer::new(tcc)
-                }
-            )+
+macro_rules! tcc_peripherals {
+    ($(($name:ident, $clock:ty, $instance:ty, $apb:ident),)+) => {
+        $(
+        impl $crate::config::TimerPeripheral<$crate::config::TCC> for $instance {
+            type GenericClock = $clock;
+            
+            fn initialize(mclk: &mut $crate::config::MasterClock, _clock: &$clock, tcc: $instance) -> $crate::control::ControlTimer<$instance> {
+                mclk.$apb.modify(paste::expr!{ |_, r| r.[<$name _>]().set_bit() });
+            }
         }
+    )+
     };
 }
 
-macro_rules! tc {
+macro_rules! tc_peripherals {
     ($mclk:ty, $(($name:ident, $clock:ty, $instance:ty, $apb:ident),)+) => {
         impl TimerConfig<TC<Count8>> {
             $(
@@ -254,7 +252,7 @@ impl TimerConfig<TCC> {
 
 /// Trait for the different counter widths of the `Timer` peripheral.
 /// 
-/// This is a sealed trait that provides an interface for the `Timer`
+/// This is a sealed trait that provides an internal interface for the `Timer`
 /// implementation. It is used by [`Count8`] and [`Count16`].
 /// 
 /// [`Count8`]: samd_timer::Count8

@@ -2,11 +2,12 @@ use core::marker::PhantomData;
 use core::ops::Deref;
 
 use crate::*;
-use crate::config::{CountMode, TimerWaveGen};
+use crate::config::{TimerPeripheral, CountMode, TimerWaveGen, TCC, TC};
 use crate::timer::TC4_5;
 
 use crate::target_device::PM;
-use crate::target_device::tc3::RegisterBlock;
+use crate::target_device::tc3::RegisterBlock as TC_RB;
+use crate::target_device::tcc0::RegisterBlock as TCC_RB;
 use crate::target_device::{
     TCC0,
     TCC1,
